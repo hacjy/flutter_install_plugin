@@ -86,21 +86,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   void onClickInstallApk() async {
-    if (_apkFilePath.isEmpty) {
-      print('make sure the apk file is set');
-      return;
-    }
-    Map<PermissionGroup, PermissionStatus> permissions =
-        await PermissionHandler().requestPermissions([PermissionGroup.storage]);
-    if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
-      InstallPlugin.installApk(_apkFilePath, 'com.zaihui.installpluginexample')
-          .then((result) {
-        print('install apk $result');
-      }).catchError((error) {
-        print('install apk error: $error');
-      });
+    FilePickerResult result = await FilePicker.platform.pickFiles();
+    if (result != null) {
+      var ret = await Permission.storage.request();
+      if (ret == PermissionStatus.granted) {
+        InstallPlugin.installApk(result.files.single.path, 'com.zaihui.installpluginexample').then((result) {
+          print('install apk $result');
+        }).catchError((error) {
+          print('install apk error: $error');
+        });
+      } else {
+        print('Permission request fail!');
+      }
     } else {
-      print('Permission request fail!');
+      // User canceled the picker
     }
   }
 

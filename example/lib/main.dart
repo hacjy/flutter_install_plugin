@@ -49,8 +49,8 @@ class _MyAppState extends State<MyApp> {
   void onClickInstallApk() async {
     FilePickerResult result = await FilePicker.platform.pickFiles();
     if (result != null) {
-      Map<PermissionGroup, PermissionStatus> permissions = await PermissionHandler().requestPermissions([PermissionGroup.storage]);
-      if (permissions[PermissionGroup.storage] == PermissionStatus.granted) {
+      var ret = await Permission.storage.request();
+      if (ret == PermissionStatus.granted) {
         InstallPlugin.installApk(result.files.single.path, 'com.zaihui.installpluginexample').then((result) {
           print('install apk $result');
         }).catchError((error) {

@@ -34,7 +34,7 @@ class InstallPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAw
         const val STATUS_INSTALL_FAIL = "4"
 
         const val REQUEST_CODE_INSTALL = 1024
-        const val REQUEST_CODE_PERMISSION = 1024
+        const val REQUEST_CODE_PERMISSION = 1025
 
         var apkFilePath = ""
 
@@ -147,7 +147,7 @@ class InstallPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAw
         }
 
         if (requestCode == REQUEST_CODE_PERMISSION) {
-            if (resultCode == Activity.RESULT_OK && apkFilePath.isNotEmpty()) {
+            if ( apkFilePath.isNotEmpty() && hasInstallPermission()) {
                 val intent = AppUtils.getInstallAppIntent(context, apkFilePath, false)
                 if (intent == null) {
                     notifyFlutterClient(STATUS_INSTALL_FAIL)
