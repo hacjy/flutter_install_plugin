@@ -101,38 +101,49 @@ class InstallPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAw
     }
 
     private fun installApk(filePath: String, packageName: String, result: MethodChannel.Result) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (hasInstallPermission()) {
-                val intent = AppUtils.getInstallAppIntent(context, filePath, false)
-                if (intent == null) {
-                    result.error(ERROR_NOT_GET_INTENT, "Not Get Install Intent", null)
-                    return
-                }
-                result.success(0)
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                intent.putExtra(Intent.EXTRA_RETURN_RESULT, true)
-                activity?.startActivityForResult(intent, REQUEST_CODE_INSTALL)
-                notifyFlutterClient(STATUS_INSTALLING)
-            } else {
-                result.success(0)
-                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
-                intent.data = Uri.parse("package:$packageName")
-                activity?.startActivityForResult(intent, REQUEST_CODE_PERMISSION)
-                apkFilePath = filePath
-                notifyFlutterClient(STATUS_REQUESTING_PERMISSION)
-            }
-        } else {
-            val intent = AppUtils.getInstallAppIntent(context, filePath, false)
-            if (intent == null) {
-                result.error(ERROR_NOT_GET_INTENT, "Not Get Install Intent", null)
-                return
-            }
-            result.success(0)
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            intent.putExtra(Intent.EXTRA_RETURN_RESULT, true)
-            activity?.startActivityForResult(intent, 1024)
-            notifyFlutterClient(STATUS_INSTALLING)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            if (hasInstallPermission()) {
+//                val intent = AppUtils.getInstallAppIntent(context, filePath, false)
+//                if (intent == null) {
+//                    result.error(ERROR_NOT_GET_INTENT, "Not Get Install Intent", null)
+//                    return
+//                }
+//                result.success(0)
+//                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//                intent.putExtra(Intent.EXTRA_RETURN_RESULT, true)
+//                activity?.startActivityForResult(intent, REQUEST_CODE_INSTALL)
+//                notifyFlutterClient(STATUS_INSTALLING)
+//            } else {
+//                result.success(0)
+//                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
+//                intent.data = Uri.parse("package:$packageName")
+//                activity?.startActivityForResult(intent, REQUEST_CODE_PERMISSION)
+//                apkFilePath = filePath
+//                notifyFlutterClient(STATUS_REQUESTING_PERMISSION)
+//            }
+//        } else {
+//            val intent = AppUtils.getInstallAppIntent(context, filePath, false)
+//            if (intent == null) {
+//                result.error(ERROR_NOT_GET_INTENT, "Not Get Install Intent", null)
+//                return
+//            }
+//            result.success(0)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+//            intent.putExtra(Intent.EXTRA_RETURN_RESULT, true)
+//            activity?.startActivityForResult(intent, REQUEST_CODE_INSTALL)
+//            notifyFlutterClient(STATUS_INSTALLING)
+//        }
+        //修复 Android 11 上允许权限后应用重启的问题 直接走安装apk流程
+        val intent = AppUtils.getInstallAppIntent(context, filePath, false)
+        if (intent == null) {
+            result.error(ERROR_NOT_GET_INTENT, "Not Get Install Intent", null)
+            return
         }
+        result.success(0)
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        intent.putExtra(Intent.EXTRA_RETURN_RESULT, true)
+        activity?.startActivityForResult(intent, REQUEST_CODE_INSTALL)
+        notifyFlutterClient(STATUS_INSTALLING)
     }
 
     private fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
